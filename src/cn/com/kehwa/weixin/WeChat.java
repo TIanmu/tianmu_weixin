@@ -93,7 +93,11 @@ public class WeChat {
     	WeixinKit weixinKit = WeixinKitFactory.getWeixinKit();
         String jsonStr = HttpKit.get(ACCESSTOKEN_URL.concat("&appid=") + weixinKit.getAppid() + "&secret=" + weixinKit.getAppsecret());
         Map<String, Object> map = JSONObject.parseObject(jsonStr);
-        return map.get("access_token").toString();
+        if(map.containsKey("access_token")){
+        	return map.get("access_token").toString();
+        } else {
+        	throw new WxException(jsonStr);
+        }
     }
     
 	/**
@@ -104,9 +108,8 @@ public class WeChat {
 	 */
 	public static List<String> getCallbackIP() throws Exception {
 		List<String> ips = new ArrayList<String>();
-
-		String accessToken = getAccessToken();
-
+		WeixinKit weixinKit = WeixinKitFactory.getWeixinKit();
+		String accessToken = weixinKit.getAccessToken();
 		String result = HttpKit.get(GET_IP_URL.concat(accessToken));
 		if (result != null && StringUtils.isNotEmpty(result)) {
 			JSONObject jsonObject = JSONObject.parseObject(result);
@@ -136,6 +139,9 @@ public class WeChat {
         map.put("feedbackid", feedbackid);
         String jsonStr = HttpKit.get(PAYFEEDBACK_URL, map);
         Map<String, Object> jsonMap = JSONObject.parseObject(jsonStr);
+        if (!jsonMap.containsKey("errcode")) {
+        	throw new WxException(jsonStr);
+		}
         return "0".equals(jsonMap.get("errcode").toString());
     }
 

@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import cn.com.kehwa.weixin.WxException;
 import cn.com.kehwa.weixin.message.bean.UserInfo;
 import cn.com.kehwa.weixin.util.HttpKit;
 import cn.com.kehwa.weixin.util.WeixinKit;
@@ -120,9 +121,7 @@ public class Oauth {
 	 * @throws NoSuchAlgorithmException 
 	 * @throws KeyManagementException 
 	 */
-	public static UserInfo getUserInfo(String openid) throws Exception {
-		WeixinKit weixinKit = WeixinKitFactory.getWeixinKit();
-		String accessToken = weixinKit.getAccessToken();
+	public static UserInfo getUserInfo(String openid, String accessToken) throws Exception {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("access_token", accessToken);
 		params.put("openid", openid);
@@ -131,7 +130,7 @@ public class Oauth {
 		if(StringUtils.isNotEmpty(jsonStr)){
 			JSONObject obj = JSONObject.parseObject(jsonStr);
 			if(obj.get("errcode") != null){
-				throw new Exception(obj.getString("errmsg"));
+				throw new WxException(jsonStr);
 			}
 			UserInfo user = JSONObject.toJavaObject(obj, UserInfo.class);
 			return user;

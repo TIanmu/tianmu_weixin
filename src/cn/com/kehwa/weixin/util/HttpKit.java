@@ -105,6 +105,7 @@ public class HttpKit {
         AsyncHttpClient http = new AsyncHttpClient();
         AsyncHttpClient.BoundRequestBuilder builder = http.preparePost(url);
         builder.setBodyEncoding(DEFAULT_CHARSET);
+        builder.setHeader("Charsert", DEFAULT_CHARSET);
         if (params != null && !params.isEmpty()) {
             Set<String> keys = params.keySet();
             for (String key : keys) {

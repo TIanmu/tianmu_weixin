@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.com.kehwa.weixin.WeChatException;
+import cn.com.kehwa.weixin.WxException;
 import cn.com.kehwa.weixin.message.bean.UserInfo;
 import cn.com.kehwa.weixin.util.HttpKit;
 import cn.com.kehwa.weixin.util.WeixinKit;
@@ -74,12 +74,12 @@ public class User {
 	 * @throws NoSuchAlgorithmException 
 	 * @throws KeyManagementException 
 	 */
-	public static UserInfo getUserInfo(String openid) throws WeChatException {
+	public static UserInfo getUserInfo(String openid) throws WxException {
 		WeixinKit weixinKit = WeixinKitFactory.getWeixinKit();
 		String accessToken = weixinKit.getAccessToken();
 		if(StringUtils.isBlank(openid) || StringUtils.isBlank(accessToken) ){
 			LOGGER.error("OPENID or ACCESSTOKEN is blank");
-			throw new WeChatException("OPENID or ACCESSTOKEN is blank");
+			throw new WxException("OPENID or ACCESSTOKEN is blank");
 		}
 		
 		try{
@@ -92,19 +92,19 @@ public class User {
 				JSONObject obj = JSONObject.parseObject(jsonStr);
 				if(obj.get("errcode") != null){
 					LOGGER.error("get {} user info fail{}",openid,obj.getString("errmsg"));
-					throw new WeChatException("user info fail");
+					throw new WxException("user info fail");
 				}else{
 					LOGGER.info("get {} user info sucess",openid);
 					UserInfo user = JSONObject.toJavaObject(obj, UserInfo.class);
 					if(user.getSubscribe() == 0){
 						LOGGER.error("get {} user info fail{}", jsonStr);
-						throw new WeChatException("user no guanzhu weixin");
+						throw new WxException("user no guanzhu weixin");
 					}
 					return user;
 				}
 			}
 		}catch (Exception e) {
-			throw new WeChatException(e.getMessage());
+			throw new WxException(e.getMessage());
 		}
 		return null;
 	}
