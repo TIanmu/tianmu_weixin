@@ -23,5 +23,4 @@ public class WxException extends Exception {
 		super(cause);
 	}
 
-	
 }

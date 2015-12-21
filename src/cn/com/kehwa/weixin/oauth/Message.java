@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSONObject;
 
+import cn.com.kehwa.weixin.WxException;
 import cn.com.kehwa.weixin.message.bean.Article;
 import cn.com.kehwa.weixin.message.bean.Articles;
 import cn.com.kehwa.weixin.message.bean.TemplateData;
@@ -49,13 +50,20 @@ public class Message {
      * 发送 客服消息
      * @param message
      * @return
+     * @throws WxException 
      * @throws Exception
      */
-    private String sendMsg(Map<String, Object> message) throws Exception {
+    private String sendMsg(Map<String, Object> message) throws WxException {
     	WeixinKit weixinKit = WeixinKitFactory.getWeixinKit();
     	String accessToken = weixinKit.getAccessToken();
     	
         String result = HttpKit.post(MESSAGE_URL.concat(accessToken), JSONObject.toJSONString(message));
+        
+        JSONObject jsonObject = JSONObject.parseObject(result);
+		if (jsonObject.containsKey("errcode") && jsonObject.getInteger("errcode") != 0) {
+			throw new WxException("errcode:" + jsonObject.getInteger("errcode") + ", message:" + jsonObject.getString("errmsg"));
+		}
+		
         return result;
     }
 
@@ -170,14 +178,15 @@ public class Message {
     }
 
     /**
-     * 发送 图文回复
-     *
+     * 发送 图文回复(客服消息)
+     * 
      * @param openId
      * @param articles
      * @return
+     * @throws WxException 
      * @throws Exception
      */
-    public String sendNews(String openId, List<Articles> articles) throws Exception {
+    public String sendNews(String openId, List<Articles> articles) throws WxException {
     	Map<String, Object> json = new HashMap<String, Object>();
 		Map<String, Object> textObj = new HashMap<String, Object>();
 		textObj.put("articles", articles);

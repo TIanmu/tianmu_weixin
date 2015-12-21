@@ -185,18 +185,28 @@ public class HttpKit {
      * @param url
      * @param s
      * @return
-     * @throws IOException
-     * @throws ExecutionException
-     * @throws InterruptedException
      */
-    public static String post(String url, String s) throws IOException, ExecutionException, InterruptedException {
-        AsyncHttpClient http = new AsyncHttpClient();
-        AsyncHttpClient.BoundRequestBuilder builder = http.preparePost(url);
-        builder.setBodyEncoding(DEFAULT_CHARSET);
-        builder.setBody(s);
-        Future<Response> f = builder.execute();
-        String body = f.get().getResponseBody(DEFAULT_CHARSET);
-        http.close();
+    public static String post(String url, String s) {
+        AsyncHttpClient http = null;
+		String body = "";
+		try {
+			http = new AsyncHttpClient();
+			AsyncHttpClient.BoundRequestBuilder builder = http.preparePost(url);
+			builder.setBodyEncoding(DEFAULT_CHARSET);
+			builder.setBody(s);
+			Future<Response> f = builder.execute();
+			body = f.get().getResponseBody(DEFAULT_CHARSET);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			e.printStackTrace();
+		} finally {
+			if (http != null) {
+				 http.close();
+			}
+		}
         return body;
     }
     
